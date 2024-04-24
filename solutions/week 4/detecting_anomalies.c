@@ -31,10 +31,11 @@ int main(){
 
 int bellmanFord(EDGE* edges, int E, int V, int src){
 	long long *dist = (long long*) malloc(V * sizeof(long long));
+	int maxDist = 1000001;
 	int i, j;
 	
 	for(i=0;i<V;i++){
-		dist[i] = INT_MAX;
+		dist[i] = maxDist;
 	}
 	
 	dist[src] = 0;
