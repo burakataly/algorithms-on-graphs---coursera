@@ -46,17 +46,19 @@ int main(){
 }
 
 int depthFirstSearch(GRAPH* graph, int* label, int start){
-	NODE* temp = graph -> adjList[start];
+	if(label[start] == 1) return 1; //found cycle since a call made for a node that started the dfs calls
+    if(label[start] == 2) return 0; //finished node so no need to no need to start dfs calls from this node since all the calls were made to find. so no cycle
 	
+	NODE* temp = graph -> adjList[start];
 	label[start] = 1;
+	
 	while(temp != NULL){
-		if(!label[temp -> vertex]){
-			if(depthFirstSearch(graph, label, temp -> vertex)) return 1;
-		}
-		else return 1;
+		if(depthFirstSearch(graph, label, temp -> vertex)) return 1;
 		temp = temp -> next;
 	}
-	label[start] = 0;
+	
+	label[start] = 2; //since all potential dfs calls were made from this node to find cycles
+	
 	return 0;
 }
 
