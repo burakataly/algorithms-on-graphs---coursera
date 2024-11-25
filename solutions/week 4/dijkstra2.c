@@ -27,7 +27,7 @@ DIST* makeHeap(int n, int* dist);
 void siftUp(DIST* heap, int i);
 void siftDown(DIST* heap, int n, int i);
 DIST extractMin(DIST* heap, int* n);
-void changePriority(DIST* heap, int n, int i, int p);
+DIST* insert(DIST* heap, int* heapSize, int* heapCapacity, int vertex, int dist);
 void dijkstra(GRAPH* graph, int src, int dest);
 
 int main(){
@@ -50,7 +50,7 @@ int main(){
 void dijkstra(GRAPH* graph, int src, int dest){
 	int n = graph -> numOfNodes, i;
 	int* dist = (int*) malloc(n * sizeof(int));
-	
+	int heapSize = n, heapCapacity = n;
 	for(i=0;i<n;i++) dist[i] = INT_MAX;
 	dist[src] = 0;
 	
@@ -61,13 +61,13 @@ void dijkstra(GRAPH* graph, int src, int dest){
 	heap[0] = u;
 	NODE* temp;
 	
-	while(n){
-		u = extractMin(heap, &n);
+	while(heapSize){
+		u = extractMin(heap, &heapSize);
 		temp = graph -> adjList[u.vertex];
 		while(temp != NULL && u.d != INT_MAX){
 			if(dist[temp -> vertex] > dist[u.vertex] + temp -> weight){
 				dist[temp -> vertex] = dist[u.vertex] + temp -> weight;
-				changePriority(heap, n, temp -> vertex, dist[temp -> vertex]);
+				heap = insert(heap, &heapSize, &heapCapacity, temp -> vertex, dist[temp -> vertex]);
 			}
 			temp = temp -> next;
 		}
@@ -128,14 +128,16 @@ DIST extractMin(DIST* heap, int* n){
 	return result;
 }
 
-void changePriority(DIST* heap, int n, int vertex, int p){
-	int i = 0;
-	while(i < n && heap[i].vertex != vertex) i++;
-	if(i == n || heap[i].d == p) return;
-	int oldP = heap[i].d;
-	heap[i].d = p;
-	if(p < oldP) siftUp(heap, i);
-	else siftDown(heap, n, i);
+DIST* insert(DIST* heap, int* heapSize, int* heapCapacity, int vertex, int dist){
+	if(*heapSize == *heapCapacity){
+		*heapCapacity *= 2;
+		heap = realloc(heap, *heapCapacity * sizeof(DIST));
+	}
+	heap[*heapSize].vertex = vertex;
+	heap[*heapSize].d = dist;
+	siftUp(heap, *heapSize);
+	(*heapSize)++;
+	return heap;
 }
 
 NODE* createNode(int vertex, int weight){
